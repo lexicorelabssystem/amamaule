@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,12 +14,11 @@ Route::post('password/change', [PasswordChangeController::class, 'store'])
     ->middleware(['auth'])
     ->name('password.change.store');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::view('profile', 'profile')->name('profile');
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
+    Route::resource('artists', ArtistController::class);
+});
 
 require __DIR__.'/auth.php';

@@ -28,8 +28,10 @@ class RolesAndPermissionsSeeder extends Seeder
             // Artists
             'artists.view_own',
             'artists.view_any',
+            'artists.create',
             'artists.edit_own',
             'artists.edit_any',
+            'artists.delete',
             'artists.review',
             'artists.approve',
             'artists.reject',
@@ -100,6 +102,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $roleOperativo->syncPermissions([
             'users.view',
             'artists.view_any',
+            'artists.create',
+            'artists.edit_any',
+            'artists.delete',
             'artists.review',
             'artists.approve',
             'artists.reject',
@@ -118,6 +123,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $roleRevisor = Role::findOrCreate('revisor', $guard);
         $roleRevisor->syncPermissions([
             'artists.view_any',
+            'artists.create',
+            'artists.edit_any',
             'artists.review',
             'artists.approve',
             'artists.reject',
