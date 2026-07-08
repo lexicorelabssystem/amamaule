@@ -1,0 +1,57 @@
+# =============================================================================
+# AMA Maule - Git ignore strategy (whitelist)
+# =============================================================================
+# This repository only tracks custom code and documentation.
+# WordPress core, third-party plugins, uploads, configuration secrets,
+# caches, logs and local backups are ignored.
+#
+# Strategy: ignore everything by default, then explicitly allow only what
+# belongs to this project.
+# =============================================================================
+
+# Ignore everything by default
+*
+
+# ---------------------------------------------------------------------------
+# Repository metadata and documentation
+# ---------------------------------------------------------------------------
+!README.md
+!.gitignore
+!wp-config.example.php
+
+# ---------------------------------------------------------------------------
+# Project documentation
+# ---------------------------------------------------------------------------
+!docs/
+!docs/**
+
+# ---------------------------------------------------------------------------
+# Custom theme (only our own code)
+# ---------------------------------------------------------------------------
+!wp-content/
+!wp-content/themes/
+!wp-content/themes/AMA-MAULE/
+!wp-content/themes/AMA-MAULE/**
+
+# ---------------------------------------------------------------------------
+# Future Laravel / platform folder (prepared for monorepo expansion)
+# Currently empty, but the folder name is reserved.
+# ---------------------------------------------------------------------------
+!platform/
+!platform/**
+
+# ---------------------------------------------------------------------------
+# Ignore backup and temporary files even inside tracked folders
+# ---------------------------------------------------------------------------
+**/*.bak*
+**/*.bak
+**/*~
+**/*.swp
+**/*.tmp
+
+# ---------------------------------------------------------------------------
+# Ignore OS-specific files
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini

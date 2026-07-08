@@ -1,0 +1,248 @@
+/*
+Theme name: AMA MAULE
+Theme URI: Cunix
+Description: child-astra
+Author: Cunix
+Template: astra
+Version:1.0.4
+Text Domain: tema-hijo
+*/
+:root {
+	--ama-header-ink: #34142b;
+	--ama-header-accent: #32b95d;
+	--ama-header-border: rgba(52, 20, 43, 0.14);
+}
+
+.site-header,
+.ast-primary-header-bar,
+.main-header-bar,
+.elementor-location-header {
+	background: #fff !important;
+	border-bottom: 1px solid var(--ama-header-border);
+	box-shadow: 0 2px 16px rgba(18, 18, 18, 0.08);
+	position: relative;
+	z-index: 20;
+}
+
+.main-header-menu .menu-link,
+.ast-builder-menu-1 .menu-item > .menu-link,
+.elementor-location-header .elementor-nav-menu--main .elementor-item {
+	color: var(--ama-header-ink) !important;
+	font-weight: 700;
+	text-shadow: none;
+}
+
+.main-header-menu .current-menu-item > .menu-link,
+.main-header-menu .menu-link:hover,
+.ast-builder-menu-1 .menu-item.current-menu-item > .menu-link,
+.ast-builder-menu-1 .menu-item > .menu-link:hover,
+.elementor-location-header .elementor-nav-menu--main .elementor-item:hover,
+.elementor-location-header .elementor-nav-menu--main .elementor-item.elementor-item-active {
+	color: var(--ama-header-ink) !important;
+}
+
+.main-header-menu .current-menu-item > .menu-link,
+.ast-builder-menu-1 .menu-item.current-menu-item > .menu-link,
+.elementor-location-header .elementor-nav-menu--main .elementor-item.elementor-item-active {
+	box-shadow: inset 0 -3px 0 var(--ama-header-accent);
+}
+
+/* AMA local polish: header contrast and readable light sections */
+:root {
+	--ama-nav-ink: #ffffff;
+	--ama-nav-ink-strong: #ffffff;
+	--ama-nav-accent: #4bd18e;
+	--ama-text-ink: #10213d;
+	--ama-muted-ink: #5e6674;
+}
+
+.site-header,
+.ast-primary-header-bar,
+.main-header-bar,
+.elementor-location-header {
+	background: linear-gradient(100deg, rgba(48, 18, 48, 0.98) 0%, rgba(112, 39, 117, 0.96) 38%, rgba(216, 61, 134, 0.96) 72%, rgba(246, 139, 92, 0.96) 100%) !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+	box-shadow: 0 8px 24px rgba(31, 12, 35, 0.22) !important;
+}
+
+.main-header-menu .menu-link,
+.ast-builder-menu-1 .menu-item > .menu-link,
+.elementor-location-header .elementor-nav-menu--main .elementor-item {
+	color: var(--ama-nav-ink) !important;
+	font-weight: 800 !important;
+	letter-spacing: 0 !important;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
+
+.main-header-menu .menu-link:hover,
+.ast-builder-menu-1 .menu-item > .menu-link:hover,
+.elementor-location-header .elementor-nav-menu--main .elementor-item:hover,
+.main-header-menu .current-menu-item > .menu-link,
+.ast-builder-menu-1 .menu-item.current-menu-item > .menu-link,
+.elementor-location-header .elementor-nav-menu--main .elementor-item.elementor-item-active {
+	color: var(--ama-nav-ink-strong) !important;
+	box-shadow: inset 0 -4px 0 var(--ama-nav-accent);
+}
+
+.main-header-menu .sub-menu,
+.ast-builder-menu-1 .sub-menu,
+.elementor-location-header .elementor-nav-menu--dropdown {
+	background: #ffffff !important;
+	border: 1px solid rgba(16, 33, 61, 0.12);
+	box-shadow: 0 14px 30px rgba(16, 33, 61, 0.18);
+}
+
+.main-header-menu .sub-menu .menu-link,
+.ast-builder-menu-1 .sub-menu .menu-link,
+.elementor-location-header .elementor-nav-menu--dropdown .elementor-item,
+.elementor-location-header .elementor-nav-menu--dropdown .elementor-sub-item {
+	color: var(--ama-text-ink) !important;
+	text-shadow: none !important;
+	font-weight: 700 !important;
+}
+
+.site-main,
+.entry-content,
+.elementor-widget-text-editor,
+.elementor-widget-text-editor p,
+.elementor-widget-text-editor li,
+.elementor-widget-accordion,
+.elementor-widget-toggle,
+.elementor-widget-n-accordion,
+.elementor-widget-n-accordion .e-n-accordion-item-title,
+.elementor-widget-n-accordion .e-n-accordion-item-title-text,
+.elementor-widget-container details,
+.elementor-widget-container summary {
+	color: var(--ama-text-ink) !important;
+}
+
+.elementor-widget-text-editor em,
+.entry-content em,
+.elementor-widget-container .elementor-heading-title + p,
+.elementor-widget-container p em {
+	color: var(--ama-muted-ink) !important;
+}
+
+.elementor-widget-heading .elementor-heading-title {
+	text-shadow: 0 1px 2px rgba(255, 255, 255, 0.45);
+}
+
+.elementor-widget-button .elementor-button,
+.wpforms-submit,
+button.wpforms-submit {
+	background: linear-gradient(100deg, #31c86a 0%, #41d88d 100%) !important;
+	color: #ffffff !important;
+	border: 0 !important;
+	box-shadow: 0 8px 18px rgba(49, 200, 106, 0.26);
+	font-weight: 800 !important;
+}
+
+.wpforms-container,
+.wpforms-container input,
+.wpforms-container textarea,
+.wpforms-container select,
+.wpforms-container label {
+	color: var(--ama-text-ink) !important;
+}
+
+/* Stable readable sticky navigation while scrolling */
+.site-header,
+.site-header.ast-primary-sticky-header-active,
+.site-header.ast-sticky-active,
+.ast-primary-header-bar,
+.ast-primary-header-bar.ast-primary-sticky-header-active,
+.ast-primary-header-bar.ast-sticky-active,
+.main-header-bar,
+.main-header-bar.ast-sticky-active,
+.elementor-location-header,
+.elementor-location-header.elementor-sticky--active,
+.elementor-sticky--active,
+.elementor-sticky--effects {
+	background: linear-gradient(100deg, rgba(40, 12, 42, 0.96) 0%, rgba(104, 30, 110, 0.94) 42%, rgba(210, 50, 132, 0.94) 74%, rgba(244, 126, 87, 0.94) 100%) !important;
+	-webkit-backdrop-filter: blur(14px) saturate(125%);
+	backdrop-filter: blur(14px) saturate(125%);
+	box-shadow: 0 10px 28px rgba(20, 8, 26, 0.32) !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+.site-header::before,
+.ast-primary-header-bar::before,
+.main-header-bar::before,
+.elementor-location-header::before,
+.elementor-sticky--active::before,
+.elementor-sticky--effects::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: rgba(26, 10, 32, 0.34);
+	pointer-events: none;
+	z-index: -1;
+}
+
+.site-header,
+.ast-primary-header-bar,
+.main-header-bar,
+.elementor-location-header,
+.elementor-sticky--active,
+.elementor-sticky--effects {
+	isolation: isolate;
+}
+
+.site-header .menu-link,
+.ast-primary-header-bar .menu-link,
+.main-header-bar .menu-link,
+.elementor-location-header .elementor-item,
+.elementor-location-header .elementor-sub-item,
+.elementor-sticky--active .elementor-item,
+.elementor-sticky--effects .elementor-item {
+	color: #ffffff !important;
+	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55), 0 0 1px rgba(0, 0, 0, 0.85) !important;
+}
+
+.elementor-location-header .elementor-nav-menu--dropdown .elementor-item,
+.elementor-location-header .elementor-nav-menu--dropdown .elementor-sub-item,
+.elementor-sticky--active .elementor-nav-menu--dropdown .elementor-item,
+.elementor-sticky--active .elementor-nav-menu--dropdown .elementor-sub-item {
+	color: #10213d !important;
+	text-shadow: none !important;
+}
+
+/* Final nav treatment: keep normal behavior, improve contrast */
+.site-header,
+.ast-primary-header-bar,
+.main-header-bar,
+.elementor-location-header,
+.elementor-sticky--active,
+.elementor-sticky--effects {
+	background: linear-gradient(90deg, #35113f 0%, #71216e 34%, #d13d86 68%, #f57962 100%) !important;
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
+	box-shadow: 0 6px 18px rgba(26, 10, 32, 0.26) !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+}
+
+.site-header::before,
+.ast-primary-header-bar::before,
+.main-header-bar::before,
+.elementor-location-header::before,
+.elementor-sticky--active::before,
+.elementor-sticky--effects::before {
+	display: none !important;
+}
+
+.site-header .menu-link,
+.ast-primary-header-bar .menu-link,
+.main-header-bar .menu-link,
+.elementor-location-header .elementor-item,
+.elementor-sticky--active .elementor-item,
+.elementor-sticky--effects .elementor-item {
+	color: #ffffff !important;
+	font-weight: 800 !important;
+	text-shadow: 0 2px 7px rgba(0, 0, 0, 0.45) !important;
+}
+
+.main-header-menu .current-menu-item > .menu-link,
+.ast-builder-menu-1 .menu-item.current-menu-item > .menu-link,
+.elementor-location-header .elementor-nav-menu--main .elementor-item.elementor-item-active {
+	box-shadow: inset 0 -4px 0 #4bd18e !important;
+}
