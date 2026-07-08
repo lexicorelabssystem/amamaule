@@ -32,6 +32,41 @@ $logout = function (Logout $logout) {
                             {{ __('Artistas') }}
                         </x-nav-link>
                     @endcan
+                    @can('create', App\Models\Import::class)
+                        <x-nav-link :href="route('imports.create')" :active="request()->routeIs('imports.*')" wire:navigate>
+                            {{ __('Importar') }}
+                        </x-nav-link>
+                    @endcan
+                    @if(auth()->user()->artist)
+                        <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')" wire:navigate>
+                            {{ __('Mi perfil') }}
+                        </x-nav-link>
+                    @endif
+                    @can('viewAny', App\Models\Activity::class)
+                        <x-nav-link :href="route('activities.index')" :active="request()->routeIs('activities.*')" wire:navigate>
+                            {{ __('Actividades') }}
+                        </x-nav-link>
+                    @endcan
+                    @can('artists.review')
+                        <x-nav-link :href="route('profile-reviews.index')" :active="request()->routeIs('profile-reviews.*')" wire:navigate>
+                            {{ __('Revisar perfiles') }}
+                        </x-nav-link>
+                    @endcan
+                    @can('viewAny', App\Models\Proposal::class)
+                        <a class='inline-flex items-center text-sm text-gray-500' href='{{ route('proposals.index') }}'>{{ __('Propuestas') }}</a>
+                    @endcan
+                    @can('proposals.review')
+                        <a class='inline-flex items-center text-sm text-gray-500' href='{{ route('proposal-reviews.index') }}'>{{ __('Revisar propuestas') }}</a>
+                    @endcan
+                    @can('exports.create')
+                        <a class='inline-flex items-center text-sm text-gray-500' href='{{ route('reports.index') }}'>{{ __('Reportes') }}</a>
+                    @endcan
+                    @can('community.view')
+                        <a class='inline-flex items-center text-sm text-gray-500' href='{{ route('community.channels.index') }}'>{{ __('Comunidad') }}</a>
+                    @endcan
+                    @can('community.moderate')
+                        <a class='inline-flex items-center text-sm text-gray-500' href='{{ route('moderation-reports.index') }}'>{{ __('Moderaci?n') }}</a>
+                    @endcan
                 </div>
             </div>
 
@@ -87,6 +122,41 @@ $logout = function (Logout $logout) {
                 <x-responsive-nav-link :href="route('artists.index')" :active="request()->routeIs('artists.*')" wire:navigate>
                     {{ __('Artistas') }}
                 </x-responsive-nav-link>
+            @endcan
+            @can('create', App\Models\Import::class)
+                <x-responsive-nav-link :href="route('imports.create')" :active="request()->routeIs('imports.*')" wire:navigate>
+                    {{ __('Importar') }}
+                </x-responsive-nav-link>
+            @endcan
+            @if(auth()->user()->artist)
+                <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')" wire:navigate>
+                    {{ __('Mi perfil') }}
+                </x-responsive-nav-link>
+            @endif
+            @can('viewAny', App\Models\Activity::class)
+                <x-responsive-nav-link :href="route('activities.index')" :active="request()->routeIs('activities.*')" wire:navigate>
+                    {{ __('Actividades') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('artists.review')
+                <x-responsive-nav-link :href="route('profile-reviews.index')" :active="request()->routeIs('profile-reviews.*')" wire:navigate>
+                    {{ __('Revisar perfiles') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('viewAny', App\Models\Proposal::class)
+                <a class='block px-4 py-2 text-gray-500' href='{{ route('proposals.index') }}'>{{ __('Propuestas') }}</a>
+            @endcan
+            @can('proposals.review')
+                <a class='block px-4 py-2 text-gray-500' href='{{ route('proposal-reviews.index') }}'>{{ __('Revisar propuestas') }}</a>
+            @endcan
+            @can('exports.create')
+                <a class='block px-4 py-2 text-gray-500' href='{{ route('reports.index') }}'>{{ __('Reportes') }}</a>
+            @endcan
+            @can('community.view')
+                <a class='block px-4 py-2 text-gray-500' href='{{ route('community.channels.index') }}'>{{ __('Comunidad') }}</a>
+            @endcan
+            @can('community.moderate')
+                <a class='block px-4 py-2 text-gray-500' href='{{ route('moderation-reports.index') }}'>{{ __('Moderaci?n') }}</a>
             @endcan
         </div>
 

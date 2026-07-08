@@ -61,6 +61,11 @@ class ArtistPolicy
         return $user->can('artists.reject');
     }
 
+    public function requestChanges(User $user, Artist $artist): bool
+    {
+        return $user->can('artists.review') || $user->can('artists.approve');
+    }
+
     public function archive(User $user, Artist $artist): bool
     {
         return $user->can('artists.archive');

@@ -71,7 +71,7 @@ class TerritorySeeder extends Seeder
         ];
 
         foreach ($territories as $index => $data) {
-            $slug = Str::slug($data['name'] . '-' . $data['region']);
+            $slug = Str::slug($data['name'].'-'.$data['region']);
 
             Territory::firstOrCreate(
                 ['slug' => $slug],

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -14,11 +17,17 @@ class Artist extends Model
     use HasFactory, SoftDeletes;
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SUBMITTED = 'submitted';
+
     public const STATUS_IN_REVIEW = 'in_review';
+
     public const STATUS_NEEDS_CHANGES = 'needs_changes';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_ARCHIVED = 'archived';
 
     public static array $statuses = [
@@ -77,7 +86,7 @@ class Artist extends Model
                     ?? $artist->artistic_name
                     ?? $artist->legal_name
                     ?? 'artista';
-                $artist->slug = Str::slug($base . ' ' . Str::random(6));
+                $artist->slug = Str::slug($base.' '.Str::random(6));
             }
         });
     }
@@ -85,6 +94,23 @@ class Artist extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(ArtistProfile::class);
+    }
+
+    public function wordpressPublication(): MorphOne
+    {
+        return $this->morphOne(WordPressPublication::class, 'publishable');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'commentable_id')
+            ->where('commentable_type', self::class)
+            ->latest();
     }
 
     public function territory(): BelongsTo

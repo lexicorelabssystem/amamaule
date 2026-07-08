@@ -6,6 +6,9 @@ use App\Models\Artist;
 use App\Models\Discipline;
 use App\Models\Territory;
 use App\Models\User;
+use Database\Seeders\DisciplineSeeder;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Database\Seeders\TerritorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,9 +20,9 @@ class ArtistTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
-        $this->seed(\Database\Seeders\DisciplineSeeder::class);
-        $this->seed(\Database\Seeders\TerritorySeeder::class);
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(DisciplineSeeder::class);
+        $this->seed(TerritorySeeder::class);
     }
 
     private function adminUser(): User

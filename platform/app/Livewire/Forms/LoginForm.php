@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -40,7 +41,7 @@ class LoginForm extends Form
 
         $user = Auth::user();
 
-        if (! $user instanceof \App\Models\User) {
+        if (! $user instanceof User) {
             Auth::logout();
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),

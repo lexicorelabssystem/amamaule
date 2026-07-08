@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -15,7 +17,9 @@ class User extends Authenticatable
     use HasFactory, HasRoles, Notifiable;
 
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_INACTIVE = 'inactive';
+
     public const STATUS_SUSPENDED = 'suspended';
 
     /**
@@ -101,5 +105,31 @@ class User extends Authenticatable
     public function passwordChangeCompleted(): void
     {
         $this->update(['must_change_password' => false]);
+    }
+
+    /**
+     * Get the artist profile associated with the user.
+     */
+    public function artist(): HasOne
+    {
+        return $this->hasOne(Artist::class);
+    }
+
+    /**
+     * Get the imports uploaded by the user.
+     */
+    public function imports(): HasMany
+    {
+        return $this->hasMany(Import::class);
+    }
+
+    public function communityMessages(): HasMany
+    {
+        return $this->hasMany(CommunityMessage::class);
+    }
+
+    public function moderationReports(): HasMany
+    {
+        return $this->hasMany(ModerationReport::class, 'reporter_id');
     }
 }

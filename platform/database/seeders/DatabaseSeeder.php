@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             DisciplineSeeder::class,
             TerritorySeeder::class,
+            CommunityChannelSeeder::class,
         ]);
     }
 }

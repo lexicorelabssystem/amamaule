@@ -5,13 +5,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
         // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $guard = 'web';
 
@@ -77,6 +78,11 @@ class RolesAndPermissionsSeeder extends Seeder
             // Audit
             'audit.view',
 
+            // Community
+            'community.view',
+            'community.message',
+            'community.moderate',
+
             // Settings
             'settings.manage',
         ];
@@ -86,7 +92,7 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // Refresh the permission cache so roles can be assigned safely.
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $roleArtist = Role::findOrCreate('artista', $guard);
         $roleArtist->syncPermissions([
@@ -96,6 +102,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'activities.edit_own',
             'proposals.create_own',
             'proposals.edit_own',
+            'community.view',
+            'community.message',
         ]);
 
         $roleOperativo = Role::findOrCreate('operativo', $guard);
@@ -118,6 +126,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'comments.view_internal',
             'comments.create_internal',
             'exports.create',
+            'community.view',
+            'community.message',
+            'community.moderate',
         ]);
 
         $roleRevisor = Role::findOrCreate('revisor', $guard);
@@ -138,6 +149,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'comments.view_internal',
             'comments.create_internal',
             'exports.create',
+            'community.view',
+            'community.message',
+            'community.moderate',
         ]);
 
         $roleComunicaciones = Role::findOrCreate('comunicaciones', $guard);
@@ -152,6 +166,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'exports.create',
             'comments.view_internal',
             'comments.create_internal',
+            'community.view',
+            'community.message',
+            'community.moderate',
         ]);
 
         $roleAdmin = Role::findOrCreate('admin', $guard);
@@ -164,8 +181,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $roleSoporte->syncPermissions([
             'users.view',
             'artists.view_any',
+            'community.view',
+            'community.moderate',
         ]);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }
