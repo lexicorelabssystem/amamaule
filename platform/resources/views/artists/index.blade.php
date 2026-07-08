@@ -4,11 +4,21 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Artistas') }}
             </h2>
-            @can('create', App\Models\Artist::class)
-                <a href="{{ route('artists.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                    {{ __('Nuevo artista') }}
-                </a>
-            @endcan
+            <div class="flex items-center gap-2">
+                @can('exports.create')
+                    <a href="{{ route('exports.artists', request()->query() + ['format' => 'xlsx']) }}" class="inline-flex items-center px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                        {{ __('Exportar XLSX') }}
+                    </a>
+                    <a href="{{ route('exports.artists', request()->query() + ['format' => 'csv']) }}" class="inline-flex items-center px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                        {{ __('CSV') }}
+                    </a>
+                @endcan
+                @can('create', App\Models\Artist::class)
+                    <a href="{{ route('artists.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                        {{ __('Nuevo artista') }}
+                    </a>
+                @endcan
+            </div>
         </div>
     </x-slot>
 
