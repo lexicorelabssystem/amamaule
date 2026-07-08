@@ -1,0 +1,1 @@
+<x-app-layout><div class='py-12'><form method='POST' action='{{ route('proposals.update', $proposal) }}' class='max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800'>@method('PUT') @include('proposals._form')<button class='mt-4'>Guardar cambios</button></form></div></x-app-layout>
