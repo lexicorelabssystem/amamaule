@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Discipline extends Model
@@ -34,7 +35,7 @@ class Discipline extends Model
         return $this->belongsTo(self::class, 'parent_id');
     }
 
-    public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
     }
@@ -44,5 +45,10 @@ class Discipline extends Model
         return $this->belongsToMany(Artist::class, 'artist_discipline')
             ->withPivot('is_primary')
             ->withTimestamps();
+    }
+
+    public function communityChannels(): HasMany
+    {
+        return $this->hasMany(CommunityChannel::class);
     }
 }
