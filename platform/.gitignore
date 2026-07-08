@@ -12,6 +12,8 @@
 /.vscode
 /.zed
 /auth.json
+/composer.phar
+/composer.phar
 /node_modules
 # /public/build   # Versionamos el build para que la app funcione sin npm tras clonar
 /public/hot
