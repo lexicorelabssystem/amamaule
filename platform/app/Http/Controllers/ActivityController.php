@@ -76,7 +76,7 @@ class ActivityController extends Controller
     {
         $this->authorize('view', $activity);
 
-        $activity->load(['artist', 'territory', 'media', 'cover', 'createdBy', 'updatedBy']);
+        $activity->load(['artist', 'territory', 'media', 'cover', 'createdBy', 'updatedBy', 'wordpressPublication']);
 
         return view('activities.show', compact('activity'));
     }

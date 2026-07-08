@@ -19,6 +19,17 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @if(session('status'))
+                <div class="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md">
+                    {{ session('status') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <!-- Status card -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex items-center justify-between">
@@ -32,6 +43,42 @@
                     </div>
                 </div>
             </div>
+
+            @can('wordpress.publish')
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Publicaci?n WordPress') }}</h3>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Estado:') }} {{ $artist->wordpressPublication?->status ?? __('sin publicar') }}
+                                @if($artist->wordpressPublication?->wordpress_url)
+                                    ? <a href="{{ $artist->wordpressPublication->wordpress_url }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ __('Ver en WordPress') }}</a>
+                                @endif
+                            </p>
+                            @if($artist->wordpressPublication?->last_error)
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $artist->wordpressPublication->last_error }}</p>
+                            @endif
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @if($artist->isApproved())
+                                <form method="POST" action="{{ route('artists.wordpress.publish', $artist) }}">
+                                    @csrf
+                                    <x-primary-button>{{ $artist->wordpressPublication?->wordpress_post_id ? __('Sincronizar') : __('Publicar') }}</x-primary-button>
+                                </form>
+                            @endif
+                            @can('wordpress.unpublish')
+                                @if($artist->wordpressPublication?->wordpress_post_id)
+                                    <form method="POST" action="{{ route('artists.wordpress.unpublish', $artist) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <x-secondary-button>{{ __('Despublicar') }}</x-secondary-button>
+                                    </form>
+                                @endif
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+            @endcan
 
             <!-- Basic info -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">

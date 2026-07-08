@@ -98,7 +98,7 @@ class ArtistController extends Controller
         $this->authorize('view', $artist);
 
         return view('artists.show', [
-            'artist' => $artist->load(['territory', 'mainDiscipline', 'disciplines', 'user', 'approvedBy', 'createdBy']),
+            'artist' => $artist->load(['territory', 'mainDiscipline', 'disciplines', 'user', 'approvedBy', 'createdBy', 'wordpressPublication']),
         ]);
     }
 

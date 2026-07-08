@@ -17,6 +17,16 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if(session('status'))
+                <div class="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md">
+                    {{ session('status') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <!-- Actions -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
@@ -42,6 +52,42 @@
                     @endcan
                 </div>
             </div>
+
+            @can('wordpress.publish')
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Publicaci?n WordPress') }}</h3>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Estado:') }} {{ $activity->wordpressPublication?->status ?? __('sin publicar') }}
+                                @if($activity->wordpressPublication?->wordpress_url)
+                                    ? <a href="{{ $activity->wordpressPublication->wordpress_url }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ __('Ver en WordPress') }}</a>
+                                @endif
+                            </p>
+                            @if($activity->wordpressPublication?->last_error)
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $activity->wordpressPublication->last_error }}</p>
+                            @endif
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @if($activity->isPublished())
+                                <form method="POST" action="{{ route('activities.wordpress.publish', $activity) }}">
+                                    @csrf
+                                    <x-primary-button>{{ $activity->wordpressPublication?->wordpress_post_id ? __('Sincronizar') : __('Publicar') }}</x-primary-button>
+                                </form>
+                            @endif
+                            @can('wordpress.unpublish')
+                                @if($activity->wordpressPublication?->wordpress_post_id)
+                                    <form method="POST" action="{{ route('activities.wordpress.unpublish', $activity) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <x-secondary-button>{{ __('Despublicar') }}</x-secondary-button>
+                                    </form>
+                                @endif
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+            @endcan
 
             <!-- Details -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 space-y-4">

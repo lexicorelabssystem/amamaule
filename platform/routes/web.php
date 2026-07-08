@@ -17,6 +17,7 @@ use App\Http\Controllers\ProfileReviewController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ProposalReviewController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\WordPressPublicationController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -34,10 +35,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('profile', 'profile')->name('profile');
 
     Route::resource('artists', ArtistController::class);
+    Route::post('artists/{artist}/wordpress/publish', [WordPressPublicationController::class, 'publishArtist'])->name('artists.wordpress.publish');
+    Route::patch('artists/{artist}/wordpress/unpublish', [WordPressPublicationController::class, 'unpublishArtist'])->name('artists.wordpress.unpublish');
 
     Route::resource('activities', ActivityController::class);
     Route::patch('activities/{activity}/publish', [ActivityController::class, 'publish'])->name('activities.publish');
     Route::patch('activities/{activity}/archive', [ActivityController::class, 'archive'])->name('activities.archive');
+    Route::post('activities/{activity}/wordpress/publish', [WordPressPublicationController::class, 'publishActivity'])->name('activities.wordpress.publish');
+    Route::patch('activities/{activity}/wordpress/unpublish', [WordPressPublicationController::class, 'unpublishActivity'])->name('activities.wordpress.unpublish');
 
     Route::post('activities/{activity}/media', [ActivityMediaController::class, 'store'])->name('activities.media.store');
     Route::patch('activities/{activity}/media/{media}/cover', [ActivityMediaController::class, 'setCover'])->name('activities.media.cover');
