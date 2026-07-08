@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-07-08  
 **Estado:** Arquitectura base para MVP y escalabilidad futura  
-**Stack:** Laravel 11/12 + MySQL/MariaDB + Blade + Livewire + Tailwind CSS
+**Stack:** Laravel 12 (versión estable actual) + MySQL/MariaDB + Blade + Livewire + Tailwind CSS
 
 ---
 
@@ -89,6 +89,56 @@ Plataforma AMA es el sistema privado de gestión artística de AMA Maule. WordPr
 - Las consultas complejas usan scopes o query objects.
 - Las integraciones con WordPress pasan por un adapter (`WordPressPublisher`).
 - Los jobs procesan imágenes, correos, exportaciones y publicaciones.
+
+### 2.1 Estructura de carpetas recomendada
+
+```text
+platform/
+├── app/
+│   ├── Actions/              # Acciones de aplicación (casos de uso)
+│   │   ├── Artists/
+│   │   ├── Activities/
+│   │   ├── Proposals/
+│   │   ├── Reviews/
+│   │   ├── Imports/
+│   │   ├── Media/
+│   │   └── WordPress/
+│   ├── Services/             # Servicios técnicos reutilizables
+│   │   ├── Media/
+│   │   ├── WordPress/
+│   │   ├── Notifications/
+│   │   ├── Imports/
+│   │   └── Security/
+│   ├── Models/               # Modelos de dominio
+│   ├── Policies/             # Autorización
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   ├── Requests/
+│   │   └── Middleware/
+│   ├── Livewire/             # Componentes Livewire/Volt
+│   ├── Jobs/                 # Tareas en cola
+│   ├── Events/               # Eventos de dominio
+│   ├── Listeners/            # Suscriptores de eventos
+│   ├── Observers/            # Observadores de modelos
+│   └── Notifications/        # Notificaciones por email/app
+├── database/
+│   ├── migrations/
+│   ├── seeders/
+│   └── factories/
+├── resources/
+│   ├── views/
+│   ├── css/
+│   └── js/
+├── routes/
+│   ├── web.php
+│   ├── auth.php
+│   ├── admin.php
+│   ├── artist.php
+│   └── api.php
+├── storage/
+├── tests/
+└── docs/
+```
 
 ---
 
@@ -283,17 +333,18 @@ Plataforma AMA es el sistema privado de gestión artística de AMA Maule. WordPr
 | email_verified_at | timestamp nullable | |
 | password | varchar(255) | Hash Bcrypt |
 | must_change_password | boolean default true | Obligar cambio en primer login |
+| temporary_password_expires_at | timestamp nullable | Expiración de clave temporal |
 | status | enum('active','inactive','suspended') default 'active' | |
 | last_login_at | timestamp nullable | |
 | last_login_ip | varchar(45) nullable | |
-| failed_login_attempts | tinyint unsigned default 0 | |
-| locked_until | timestamp nullable | |
+| failed_login_attempts | tinyint unsigned default 0 | Contador para bloqueo temporal |
+| locked_until | timestamp nullable | Bloqueo por intentos fallidos |
 | wordpress_user_id | bigint unsigned nullable | Referencia externa a wp_users |
 | remember_token | varchar(100) nullable | |
 | timestamps | | |
 | soft deletes | | |
 
-**Índices:** `email` (unique), `wordpress_user_id` (unique nullable), `status`, `must_change_password`.
+**Índices:** `email` (unique), `wordpress_user_id` (unique nullable), `status`, `must_change_password`, `locked_until`.
 
 #### roles, permissions, model_has_roles, model_has_permissions, role_has_permissions
 
@@ -330,14 +381,22 @@ Generadas por `spatie/laravel-permission`.
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | bigint unsigned PK | |
-| user_id | bigint unsigned FK -> users.id | Uno a uno |
+| user_id | bigint unsigned FK -> users.id nullable | Uno a uno; nullable para artistas pre-registrados |
 | legal_name | varchar(255) nullable | Nombre legal |
-| artistic_name | varchar(255) nullable | Nombre artístico |
+| public_name | varchar(255) nullable | Nombre artístico público |
+| artistic_name | varchar(255) nullable | Alias artístico |
 | slug | varchar(255) unique | Para URL pública futura |
-| territory_id | bigint unsigned FK -> territories.id nullable | |
+| document_number | varchar(50) nullable | RUT o documento de identidad |
+| email_contact | varchar(255) nullable | Email de contacto público |
 | phone | varchar(50) nullable | |
+| region | varchar(100) nullable | Región textual (respaldo) |
+| province | varchar(100) nullable | Provincia textual (respaldo) |
+| commune | varchar(100) nullable | Comuna textual (respaldo) |
+| territory_id | bigint unsigned FK -> territories.id nullable | Comuna normalizada |
+| address | varchar(255) nullable | Dirección física |
 | website | varchar(255) nullable | |
-| social_networks | json nullable | Instagram, Facebook, etc. |
+| social_networks | json nullable | Instagram, Facebook, YouTube, etc. |
+| main_discipline_id | bigint unsigned FK -> disciplines.id nullable | Disciplina principal normalizada |
 | status | enum('draft','submitted','in_review','needs_changes','approved','rejected','archived') default 'draft' | |
 | submitted_at | timestamp nullable | |
 | approved_at | timestamp nullable | |
@@ -346,7 +405,7 @@ Generadas por `spatie/laravel-permission`.
 | timestamps | | |
 | soft deletes | | |
 
-**Índices:** `user_id` (unique), `slug` (unique), `territory_id`, `status`, `approved_by`, (`status`, `territory_id`).
+**Índices:** `user_id` (unique nullable), `slug` (unique), `territory_id`, `main_discipline_id`, `status`, `approved_by`, (`status`, `territory_id`), (`status`, `main_discipline_id`).
 
 #### artist_discipline
 
@@ -431,13 +490,15 @@ Generadas por `spatie/laravel-permission`.
 | model_id | bigint unsigned | |
 | collection_name | varchar(100) default 'default' | profile, gallery, cover, etc. |
 | file_name | varchar(255) | Nombre original |
-| disk | varchar(100) default 'local' | local / s3 |
-| path | varchar(500) | Ruta relativa |
+| disk | varchar(100) default 'local' | local / s3 / r2 |
+| path | varchar(500) | Ruta relativa al archivo original |
+| thumb_path | varchar(500) nullable | Ruta a miniatura principal |
 | mime_type | varchar(255) | |
-| size_bytes | bigint unsigned | |
+| size_bytes | bigint unsigned | Tamaño en bytes del original |
 | width | int unsigned nullable | |
 | height | int unsigned nullable | |
 | caption | text nullable | |
+| alt_text | varchar(500) nullable | Texto alternativo accesible |
 | sort_order | smallint unsigned default 0 | |
 | is_featured | boolean default false | |
 | generated_conversions | json nullable | Thumbnails generados |
@@ -472,12 +533,16 @@ Generadas por `spatie/laravel-permission`.
 | commentable_id | bigint unsigned | |
 | user_id | bigint unsigned FK -> users.id | |
 | content | text | |
-| is_internal | boolean default true | |
-| parent_id | bigint unsigned FK -> internal_comments.id nullable | Respuestas |
+| visibility | enum('internal','team','artist_visible') default 'internal' | Quién puede verlo |
+| is_internal | boolean default true | true = no visible al artista |
+| visible_to_artist | boolean default false | true = artista puede leerlo |
+| parent_id | bigint unsigned FK -> internal_comments.id nullable | Respuestas anidadas |
+| expires_at | timestamp nullable | Caducidad opcional |
+| archived_at | timestamp nullable | Archivo suave |
 | timestamps | | |
 | soft deletes | | |
 
-**Índices:** (`commentable_type`, `commentable_id`), `user_id`, `parent_id`.
+**Índices:** (`commentable_type`, `commentable_id`), `user_id`, `parent_id`, `visibility`, `visible_to_artist`.
 
 #### lifebook_entries
 
@@ -584,6 +649,35 @@ Generadas por `spatie/laravel-permission`.
 
 **Índices:** `import_id`, `status`, (`import_id`, `row_number`).
 
+#### settings
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | bigint unsigned PK | |
+| key | varchar(255) unique | Identificador del parámetro |
+| value | text nullable | Valor serializado si es necesario |
+| type | varchar(50) default 'string' | string, integer, boolean, json |
+| description | text nullable | |
+| is_public | boolean default false | true = disponible en frontend/API |
+| timestamps | | |
+
+**Índices:** `key` (unique), `is_public`.
+
+#### exports
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | bigint unsigned PK | |
+| user_id | bigint unsigned FK -> users.id | |
+| type | varchar(100) | artists, activities, proposals |
+| status | enum('pending','processing','completed','failed') default 'pending' | |
+| filters | json nullable | Filtros aplicados |
+| file_path | varchar(500) nullable | Ruta del archivo generado |
+| completed_at | timestamp nullable | |
+| created_at | updated_at | |
+
+**Índices:** `user_id`, `status`, `type`, (`status`, `created_at`).
+
 ---
 
 ## 6. Estados y workflows
@@ -620,9 +714,14 @@ draft ──► submitted ──► review ──► approved ──► publishe
 
 | Transición | Quién | Acciones |
 |------------|-------|----------|
+| draft → submitted | Artista | Validar campos mínimos; notificar equipo |
+| submitted → review | Equipo AMA | Asignar revisor; notificar revisor |
+| review → approved | Revisor/Operativo | Notificar artista |
+| review → rejected | Revisor/Admin | Motivo obligatorio; notificar artista |
 | approved → published | Comunicaciones/Admin | Publica en WordPress; registra `wordpress_publications` |
 | published → updated | Comunicaciones/Admin | Sincroniza cambios a WordPress |
 | published → unpublished | Comunicaciones/Admin | Retira de WordPress |
+| any → archived | Admin | No visible; conserva historial |
 
 ### 6.3 Propuesta / Taller
 
@@ -635,8 +734,15 @@ draft ──► submitted ──► in_review ──► changes_requested ──
 
 | Transición | Quién | Acciones |
 |------------|-------|----------|
+| draft → submitted | Artista | Validar campos mínimos; notificar equipo |
+| submitted → in_review | Equipo AMA | Asignar revisor; notificar revisor |
+| in_review → changes_requested | Revisor | Enviar comentarios; notificar artista |
+| changes_requested → submitted | Artista | Notificar revisor |
+| in_review → approved | Revisor/Operativo | Notificar artista |
+| in_review → rejected | Revisor/Admin | Motivo obligatorio; notificar artista |
 | approved → activity | Admin/Operativo | Opcional: convertir propuesta a actividad pública |
 | approved → wordpress_publication | Comunicaciones | Publicar ficha resumen en WordPress |
+| any → archived | Admin | No visible; conserva historial |
 
 ### 6.4 Publicación WordPress
 
@@ -665,7 +771,7 @@ unpublished
 
 1. Admin crea usuario manualmente o importación masiva.
 2. Sistema genera contraseña temporal aleatoria segura (16+ caracteres).
-3. Sistema marca `must_change_password = true`.
+3. Sistema marca `must_change_password = true` y opcionalmente `temporary_password_expires_at`.
 4. Se envía email con credenciales temporales (job en cola).
 5. Registro en `audit_logs`.
 
@@ -677,8 +783,9 @@ unpublished
 4. Redirige a formulario de cambio obligatorio.
 5. Usuario ingresa nueva clave y confirmación.
 6. Sistema valida política de contraseña.
-7. Actualiza hash, limpia flag, regenera sesión.
-8. Redirige al dashboard.
+7. Actualiza hash, limpia flag `must_change_password`, limpia `temporary_password_expires_at`.
+8. Ejecuta `Auth::logoutOtherDevices()` y regenera sesión.
+9. Redirige al dashboard.
 
 ### 7.3 Recuperación de contraseña
 
@@ -686,7 +793,8 @@ unpublished
 2. Laravel genera token de un solo uso con expiración (60 min).
 3. Se envía link seguro.
 4. Usuario accede, establece nueva clave.
-5. Sistema invalida token y sesiones previas.
+5. Sistema invalida token.
+6. Ejecuta `Auth::logoutOtherDevices()` e invalida sesiones previas.
 
 ### 7.4 Bloqueo y suspensión
 
@@ -783,15 +891,19 @@ Subir CSV ──► Validar encabezados ──► Preview ──► Confirmar
 | Aspecto | Especificación |
 |---------|----------------|
 | Formatos | JPEG, PNG, WebP |
-| Peso máximo | 5 MB por archivo |
-| Dimensiones recomendadas | 1920x1080 máx. |
+| Peso máximo original | 4 MB por archivo |
+| Peso recomendado optimizado | Menor a 500 KB si es posible |
+| Dimensiones recomendadas | 1920 px lado mayor para imagen pública; 600 px para miniatura |
 | Compresión | Automática a calidad 85% |
 | Miniaturas | 400x400, 800x600, 1200x800 |
-| Almacenamiento | `storage/app/media/{model}/{id}/{uuid}-{size}.jpg` |
-| Nombres | UUID + timestamp |
-| Límite por actividad | 20 imágenes (configurable) |
+| Almacenamiento original | `storage/app/public/artists/{artist_id}/activities/{activity_id}/originals/{uuid}.jpg` |
+| Almacenamiento miniaturas | `storage/app/public/artists/{artist_id}/activities/{activity_id}/thumbs/{uuid}-{size}.jpg` |
+| Perfil del artista | `storage/app/public/artists/{artist_id}/profile/` |
+| Libro de vida | `storage/app/public/artists/{artist_id}/lifebook/` |
+| Nombres | UUID + timestamp; nunca nombres originales en disco |
+| Límite por actividad | 10 imágenes inicialmente (configurable) |
 | Procesamiento | Síncrono si son pocas; job si son muchas |
-| Limpieza | Command diario para eliminar huérfanos |
+| Limpieza | Command diario para eliminar archivos huérfanos |
 
 ### Entidad polimórfica `media`
 
@@ -946,6 +1058,8 @@ Permite asociar imágenes a `Artist`, `Activity`, `LifebookEntry` y futuros mode
 | Validación | Form Requests con reglas estrictas |
 | CSRF | Protección nativa de Laravel en todos los formularios |
 | Rate limiting | Middleware por ruta en login, reset, uploads |
+| Sesiones | Regeneración de sesión en login y cambio de clave |
+| Logout remoto | `Auth::logoutOtherDevices()` tras cambio de clave |
 | Subida de archivos | Validación MIME real, tamaño máximo, escaneo básico |
 | HTML | `htmlPurifier` o `striptags` para campos de texto enriquecido |
 | Datos privados | Scopes en modelos para separar visibilidad |
