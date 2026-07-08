@@ -1,31 +1,7 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <p class="text-lg font-medium">
-                        {{ __('Bienvenido, :name', ['name' => Auth::user()->name]) }}
-                    </p>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        {{ __('Rol: :role', ['role' => Auth::user()->roles->pluck('name')->first() ?? 'Sin rol']) }}
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="font-semibold text-lg mb-2">{{ __('Estado de la plataforma') }}</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        {{ __('Plataforma AMA está funcionando correctamente. WordPress sigue como vitrina pública.') }}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+<x-app-layout><div class='py-12'><div class='max-w-7xl mx-auto space-y-6'>
+ <section class='p-6 bg-white dark:bg-gray-800'><h1 class='text-xl'>Bienvenido, {{ auth()->user()->name }}</h1><p>Notificaciones sin leer: {{ auth()->user()->unreadNotifications()->count() }}</p><a href='{{ route('notifications.index') }}'>Ver notificaciones</a></section>
+ @if($metrics)
+ <section class='grid grid-cols-1 md:grid-cols-5 gap-4'>@foreach($metrics as $name => $value)<div class='p-5 bg-white dark:bg-gray-800'><p class='text-sm'>{{ str_replace('_',' ',$name) }}</p><strong class='text-2xl'>{{ $value }}</strong></div>@endforeach</section>
+ <section class='p-6 bg-white dark:bg-gray-800'><h2 class='text-lg'>Actividad reciente</h2>@forelse($audits as $audit)<p>{{ $audit->created_at->format('d/m/Y H:i') }} - {{ $audit->event }} - {{ $audit->user?->name ?? 'Sistema' }}</p>@empty<p>Sin actividad registrada.</p>@endforelse</section>
+ @endif
+</div></div></x-app-layout>
