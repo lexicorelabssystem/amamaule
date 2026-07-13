@@ -3,14 +3,21 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ActivityMediaController;
 use App\Http\Controllers\ArtistController;
+use App\Http\Controllers\ArtistMediaController;
 use App\Http\Controllers\ArtistProfileController;
+use App\Http\Controllers\ArtworkController;
+use App\Http\Controllers\ArtworkMediaController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityChannelController;
 use App\Http\Controllers\CommunityMessageController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\MediaStatusController;
 use App\Http\Controllers\ModerationReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileReviewController;
@@ -34,9 +41,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::view('profile', 'profile')->name('profile');
 
+    Route::get('media/{media}/status', [MediaStatusController::class, 'show'])->name('media.status');
+
     Route::resource('artists', ArtistController::class);
     Route::post('artists/{artist}/wordpress/publish', [WordPressPublicationController::class, 'publishArtist'])->name('artists.wordpress.publish');
     Route::patch('artists/{artist}/wordpress/unpublish', [WordPressPublicationController::class, 'unpublishArtist'])->name('artists.wordpress.unpublish');
+    Route::post('artists/{artist}/avatar', [ArtistMediaController::class, 'avatar'])->name('artists.avatar');
+    Route::post('artists/{artist}/cover', [ArtistMediaController::class, 'cover'])->name('artists.cover');
 
     Route::resource('activities', ActivityController::class);
     Route::patch('activities/{activity}/publish', [ActivityController::class, 'publish'])->name('activities.publish');
@@ -48,6 +59,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('activities/{activity}/media/{media}/cover', [ActivityMediaController::class, 'setCover'])->name('activities.media.cover');
     Route::delete('activities/{activity}/media/{media}', [ActivityMediaController::class, 'destroy'])->name('activities.media.destroy');
     Route::post('activities/{activity}/media/reorder', [ActivityMediaController::class, 'reorder'])->name('activities.media.reorder');
+
+    Route::post('activities/{activity}/register', [EventRegistrationController::class, 'store'])->name('activities.register');
+    Route::delete('activities/{activity}/register', [EventRegistrationController::class, 'destroy'])->name('activities.unregister');
+    Route::patch('activities/{activity}/registrations/{registration}/confirm', [EventRegistrationController::class, 'confirm'])->name('activities.registrations.confirm');
+    Route::patch('activities/{activity}/registrations/{registration}/reject', [EventRegistrationController::class, 'reject'])->name('activities.registrations.reject');
+
+    Route::resource('artworks', ArtworkController::class);
+    Route::patch('artworks/{artwork}/publish', [ArtworkController::class, 'publish'])->name('artworks.publish');
+    Route::post('artworks/{artwork}/media', [ArtworkMediaController::class, 'store'])->name('artworks.media.store');
+    Route::patch('artworks/{artwork}/media/{media}/cover', [ArtworkMediaController::class, 'setCover'])->name('artworks.media.cover');
+    Route::delete('artworks/{artwork}/media/{media}', [ArtworkMediaController::class, 'destroy'])->name('artworks.media.destroy');
+    Route::post('artworks/{artwork}/like', [LikeController::class, 'likeArtwork'])->name('artworks.like');
+    Route::delete('artworks/{artwork}/like', [LikeController::class, 'unlikeArtwork'])->name('artworks.unlike');
+
+    Route::post('proposals/{proposal}/like', [LikeController::class, 'likeProposal'])->name('proposals.like');
+    Route::delete('proposals/{proposal}/like', [LikeController::class, 'unlikeProposal'])->name('proposals.unlike');
+
+    Route::post('community/messages/{message}/like', [LikeController::class, 'likeCommunityMessage'])->name('community.messages.like');
+    Route::delete('community/messages/{message}/like', [LikeController::class, 'unlikeCommunityMessage'])->name('community.messages.unlike');
+
+    Route::post('artists/{artist}/follow', [FollowController::class, 'store'])->name('artists.follow');
+    Route::delete('artists/{artist}/follow', [FollowController::class, 'destroy'])->name('artists.unfollow');
 
     Route::get('profile/edit', [ArtistProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profile/edit', [ArtistProfileController::class, 'update'])->name('profile.update');

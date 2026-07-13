@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\ProcessMediaUploadJob;
 use App\Models\Media;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageInterface;
+use RuntimeException;
 
 class MediaUploadService
 {
@@ -62,6 +64,66 @@ class MediaUploadService
         $media->delete();
     }
 
+    public function queue(UploadedFile $file, Model $model, string $collection = 'default', bool $isCover = false): Media
+    {
+        $extension = $this->normalizeExtension($file);
+        $pendingPath = $file->storeAs(
+            "media-pending/{$collection}",
+            Str::uuid()->toString().'.'.$extension,
+            'public'
+        );
+
+        $order = $model->media()->max('order') + 1;
+
+        $media = $model->media()->create([
+            'collection_name' => $collection,
+            'file_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getMimeType(),
+            'size' => $file->getSize(),
+            'order' => $order,
+            'is_cover' => $isCover,
+            'status' => Media::STATUS_QUEUED,
+            'pending_path' => $pendingPath,
+        ]);
+
+        ProcessMediaUploadJob::dispatch($media);
+
+        return $media;
+    }
+
+    public function process(Media $media): void
+    {
+        if (! $media->pending_path || ! Storage::disk('public')->exists($media->pending_path)) {
+            throw new RuntimeException("No se encontró el archivo pendiente del media #{$media->id}.");
+        }
+
+        $directory = $this->directory($media->collection_name);
+        $baseName = Str::uuid()->toString();
+        $extension = $this->extensionFromPath($media->pending_path);
+
+        $filePath = "{$directory}/{$baseName}.{$extension}";
+        $thumbnailPath = "{$directory}/{$baseName}_thumb.{$extension}";
+
+        $image = $this->manager->read(Storage::disk('public')->path($media->pending_path));
+
+        $this->storeImage($image, $filePath, 1400, 1050, 85);
+        $this->storeImage($image, $thumbnailPath, 400, 300, 80);
+
+        Storage::disk('public')->delete($media->pending_path);
+
+        $media->update([
+            'file_path' => $filePath,
+            'thumbnail_path' => $thumbnailPath,
+            'status' => Media::STATUS_COMPLETED,
+            'pending_path' => null,
+            'error_message' => null,
+        ]);
+
+        if ($media->is_cover) {
+            $this->clearOtherCovers($media);
+        }
+    }
+
     protected function directory(string $collection): string
     {
         return "media/{$collection}/".now()->format('Y/m');
@@ -79,7 +141,7 @@ class MediaUploadService
         $processed = clone $image;
         $processed->scaleDown(width: $maxWidth, height: $maxHeight);
 
-        Storage::put($path, (string) $processed->encodeByExtension(
+        Storage::disk('public')->put($path, (string) $processed->encodeByExtension(
             extension: $this->extensionFromPath($path),
             quality: $quality,
         ));

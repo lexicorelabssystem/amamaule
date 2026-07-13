@@ -24,12 +24,12 @@ class ActivityMediaController extends Controller
         ]);
 
         foreach ($request->file('images') as $file) {
-            $this->mediaUpload->upload($file, $activity, 'gallery');
+            $this->mediaUpload->queue($file, $activity, 'gallery');
         }
 
         return redirect()
             ->route('activities.edit', $activity)
-            ->with('success', 'Imágenes subidas correctamente.');
+            ->with('success', 'Imágenes en proceso. Se mostrarán en unos segundos.');
     }
 
     public function setCover(Activity $activity, Media $media): RedirectResponse

@@ -12,6 +12,21 @@ class Media extends Model
 {
     use HasFactory;
 
+    public const STATUS_QUEUED = 'queued';
+
+    public const STATUS_PROCESSING = 'processing';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_FAILED = 'failed';
+
+    public static array $statuses = [
+        self::STATUS_QUEUED,
+        self::STATUS_PROCESSING,
+        self::STATUS_COMPLETED,
+        self::STATUS_FAILED,
+    ];
+
     protected $fillable = [
         'mediable_type',
         'mediable_id',
@@ -24,6 +39,9 @@ class Media extends Model
         'order',
         'is_cover',
         'custom_properties',
+        'status',
+        'pending_path',
+        'error_message',
     ];
 
     protected function casts(): array
@@ -41,24 +59,55 @@ class Media extends Model
         return $this->morphTo();
     }
 
+    public function isQueued(): bool
+    {
+        return $this->status === self::STATUS_QUEUED;
+    }
+
+    public function isProcessing(): bool
+    {
+        return $this->status === self::STATUS_PROCESSING;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === self::STATUS_COMPLETED;
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->status === self::STATUS_FAILED;
+    }
+
     public function coverFor(): BelongsTo
     {
         return $this->hasOne(Activity::class, 'cover_media_id');
     }
 
-    public function fullUrl(): string
+    public function fullUrl(): ?string
     {
-        return Storage::url($this->file_path);
+        return $this->file_path ? Storage::disk('public')->url($this->file_path) : null;
     }
 
     public function thumbnailUrl(): ?string
     {
-        return $this->thumbnail_path ? Storage::url($this->thumbnail_path) : null;
+        return $this->thumbnail_path ? Storage::disk('public')->url($this->thumbnail_path) : null;
     }
 
     public function deleteFiles(): void
     {
-        Storage::delete([$this->file_path, $this->thumbnail_path]);
+        Storage::disk('public')->delete(array_filter([
+            $this->file_path,
+            $this->thumbnail_path,
+            $this->pending_path,
+        ]));
+    }
+
+    public function deletePendingFile(): void
+    {
+        if ($this->pending_path) {
+            Storage::disk('public')->delete($this->pending_path);
+        }
     }
 
     protected static function booted(): void
